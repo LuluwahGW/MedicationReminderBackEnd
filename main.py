@@ -1,10 +1,34 @@
 from fastapi import FastAPI
 from enum import Enum
+from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Float, func
+from sqlalchemy.orm import declarative_base
+from datetime import datetime
+
+
+Base = declarative_base()
+
+
+
 
 class ModelName(str , Enum):
     alexnet ="alexnet"
     resnet = "resnet"
     lenet = "lenet"
+
+class Items(BaseModel):
+    name : str
+    description : str | None = None
+    price : float 
+    tax : float | None = None
+
+class User(Base):
+    __tablename__ = 'users'
+    id= Column(Integer, primary_key=True, index=True)
+    email = Column(String(50), unique=True, nullable=False)
+    password = Column(String(50), nullable=False)
+    created_at = Column(datetime(timezone=True), server_default=func.now())
+    updated_at = Column(datetime(timezone=True),onupdate=func.now())
 
 
 app = FastAPI()
@@ -13,15 +37,12 @@ app = FastAPI()
 async def root():
     return {"message":"Hello"}
 
-@app.post('/posts')
-async def post():
-    return{'message':'hello from this post'}
+@app.post('/items')
+async def create_item(item : Items):
+    return item
     
 
 
-@app.get('/items')
-async def items():
-    return {'message':'list of items'}
 
 @app.get('/items/{item_id}')
 async def read_items(item_id :int):
