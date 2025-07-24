@@ -1,23 +1,19 @@
-from sqlalchemy import Column,String,Integer,Float,func,Table,ForeignKey,Boolean,DateTime,Enum
+from sqlalchemy import Column,String,Integer,Float,func,Table,ForeignKey,Boolean,DateTime
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
+from sqlalchemy import Enum as SqlEnum
+import enum
+from database import Base 
 
 
-Base = declarative_base()
 
 
-class FrequencyEnum(Enum):
+
+class FrequencyEnum(enum.Enum):
     ONCE = "once"
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
-
-user_caregiver = Table(
-    'user_caregiver',
-    Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('cg_id', Integer, ForeignKey('caregivers.id'))
-)
 
 
 class User(Base):
@@ -25,11 +21,11 @@ class User(Base):
     id= Column(Integer, primary_key=True, index=True)
     email = Column(String(50), unique=True, nullable=False)
     password = Column(String(50), nullable=False)
-    created_at = Column(datetime(timezone=True), server_default=func.now())
-    updated_at = Column(datetime(timezone=True),onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True),onupdate=func.now())
     
-    caregivers = relationship("CareGiver", secondary=user_caregiver, back_populates="users")
-    medication = relationship("Medication", back_populates="user")
+   
+    medications = relationship("Medication", back_populates="user")
     reminders = relationship("Reminder", back_populates="user")
 
 class CareGiver(Base):
@@ -38,7 +34,7 @@ class CareGiver(Base):
     user_id = Column(Integer,ForeignKey('users.id'),nullable=False)
     cg_id = Column(Integer,ForeignKey('users.id'),nullable=False)
 
-    user = relationship("User",foreign_keys=[user_id],backref="assigned-caregiver")
+    user = relationship("User",foreign_keys=[user_id],backref="assigned_caregiver")
     caregiver = relationship("User",foreign_keys=[cg_id],backref="assigned_users")
 
 
@@ -53,7 +49,8 @@ class Medication(Base):
     end_date = Column(DateTime, nullable=False)
     archived = Column(Boolean, default=False)
 
-    user = relationship("User", foreign_keys=[user_id],back_populates="medications")
+    user = relationship("User", back_populates="medications")
+    reminders = relationship("Reminder", back_populates="medication", cascade="all, delete")
 
 class Reminder(Base):
     __tablename__ = 'reminders'
@@ -62,7 +59,7 @@ class Reminder(Base):
     user_id = Column(Integer,ForeignKey('users.id'),nullable=False)
     name = Column(String(50), nullable=False)
     reminder_time = Column(DateTime,nullable=False)
-    frequency = Column(Enum(FrequencyEnum), nullable=False,default=FrequencyEnum.ONCE)
+    frequency = Column(SqlEnum(FrequencyEnum), nullable=False,default=FrequencyEnum.ONCE)
     message = Column(String(100),nullable=False)
     isTaken = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -75,3 +72,5 @@ class MotivationText(Base):
    __tablename__ ='motivation_text'
    message_id = Column(Integer,primary_key=True,nullable=False)
    message_text = Column(String(255),nullable=False)
+
+
