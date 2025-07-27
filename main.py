@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import models
 from database import engine, Base , SessionLocal
 from sqlalchemy.orm import Session
+from user_routes import router as user_router
 
 
 
@@ -12,6 +13,8 @@ Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
+
+app.include_router(user_router)
 
 
 def create_tables():
@@ -31,6 +34,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to this website"}
 
 @app.post("/users")
 def create_user(email: str, password: str, db: Session = Depends(get_db)):
@@ -57,5 +66,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 def list_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return[{"id": u.id, "email": u.email}for u in users]    
+
+
 
 
