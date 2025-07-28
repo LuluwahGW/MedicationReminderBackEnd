@@ -9,4 +9,8 @@ class UserResponse(BaseModel):
     email: EmailStr
 
 class Config:
-    orm_mode = True        
+    orm_mode = True     
+
+class UserLogin(BaseModel):
+    email : EmailStr 
+    password : str      

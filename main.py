@@ -17,15 +17,20 @@ app = FastAPI()
 app.include_router(user_router)
 
 
+
+
+
+#Base.metadata.drop_all(bind=engine)
 def create_tables():
     print("Creating tables...")
     Base.metadata.create_all(bind=engine)
     print("Tables created!")
 
 
-
 if __name__ == "__main__":
     create_tables()
+
+
     
 
 def get_db():
@@ -41,17 +46,14 @@ def get_db():
 def read_root():
     return {"message": "Welcome to this website"}
 
-@app.post("/users")
-def create_user(email: str, password: str, db: Session = Depends(get_db)):
-    existing = db.query(models.User).filter(models.User.email == email).first()
-    if existing:
-        raise HTTPException(status_code=400,detail="Email has already been used")
 
-    new_user = models.User(email=email, password=password)
-    db.add(new_user)
-    db.commit
-    db.refresh(new_user)
-    return{"id ": new_user.id, "email: ":new_user.email}
+
+
+
+@app.get("/users")
+def list_users(db: Session = Depends(get_db)):
+    users = db.query(models.User).all()
+    return[{"id": u.id, "email": u.email}for u in users]    
 
 
 @app.get("/users/{user_id}")
@@ -61,12 +63,5 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404,detail="User not found")
 
     return{"id": user.id, "email": user.email}
-
-@app.get("/users")
-def list_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
-    return[{"id": u.id, "email": u.email}for u in users]    
-
-
 
 
