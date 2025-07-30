@@ -16,3 +16,11 @@ A backend API built with using FastAPI SqlAlchemy for creating and managing user
 - MySQL 
 - Uvicorn
 - Pydantic
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run server
+uvicorn main:app --reload
+
+--currently working on tokens (auth)

@@ -14,3 +14,7 @@ class Config:
 class UserLogin(BaseModel):
     email : EmailStr 
     password : str      
+
+class LoginSchema(BaseModel):
+    email: str
+    password: str
