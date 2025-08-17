@@ -10,10 +10,11 @@ from database import Base
 
 
 class FrequencyEnum(enum.Enum):
-    ONCE = "once"
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    MONTHLY = "monthly"
+    ONCE = "ONCE"
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"
+
 
 
 class User(Base):

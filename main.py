@@ -1,13 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm 
-from enum import Enum
 from pydantic import BaseModel
 import models
 from database import engine, Base , SessionLocal
 from sqlalchemy.orm import Session
 from user_routes import router as user_router
 from utils import(verify_password,hash_password,create_access_token,verify_token,oauth_scheme)
-from user_schema import LoginSchema
+import reminders_route
 
 
 #creating table based on models
@@ -17,6 +16,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(user_router)
+app.include_router(reminders_route.router)
+
 
 
 #Base.metadata.drop_all(bind=engine)
@@ -61,13 +62,13 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 
-@app.post("/token")
+@app.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     access_token = create_access_token(data={"sub": str(user.id)})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user":user} 
 
 
 
@@ -83,6 +84,11 @@ def authenticate_user(email: str, password: str, db: Session):
 
 async def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
     user_id = verify_token(token)
+    try:
+        user_id = int(user_id)
+    except Exception:
+        pass
+
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
@@ -92,6 +98,7 @@ async def get_current_user(token: str = Depends(oauth_scheme), db: Session = Dep
 
 @app.get("/protected-route")
 async def protected_route(current_user = Depends(get_current_user)):
-    return {"message": f"Hello user {current_user.email}, you are authenticated"}
+    return {"message": f"Hello user {current_user.email}, you are authenticated :D"}
+
 
 

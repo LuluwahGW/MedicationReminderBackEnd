@@ -1,9 +1,21 @@
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status , Depends
 from fastapi.security import OAuth2PasswordBearer
-import os
+from jose import JWTError, jwt
+import os , models
+from sqlalchemy.orm import Session
+from database  import SessionLocal
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -41,3 +53,11 @@ def verify_token(token : str):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token Expired")
     except jwt.PyJWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+
+async def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
+    user_id = verify_token(token)
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user

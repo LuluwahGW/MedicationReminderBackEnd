@@ -1,4 +1,8 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+from enum import Enum
+
 
 class UserCreate(BaseModel):
     email : EmailStr
@@ -7,6 +11,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id : int
     email: EmailStr
+    
 
 class Config:
     orm_mode = True     
@@ -18,3 +23,4 @@ class UserLogin(BaseModel):
 class LoginSchema(BaseModel):
     email: str
     password: str
+
