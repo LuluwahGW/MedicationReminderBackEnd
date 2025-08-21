@@ -24,6 +24,6 @@ def create_reminder(reminder: ReminderCreate, db: Session = Depends(get_db), cur
     db.refresh(new_reminder)
     return new_reminder
 
-@router.get("/", response_model=List[ReminderRead])
+@router.get("/{user_id}", response_model=List[ReminderRead])
 def get_reminders(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     return db.query(Reminder).filter(Reminder.user_id == current_user.id).all()

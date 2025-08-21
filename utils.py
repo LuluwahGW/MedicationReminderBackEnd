@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "9sF3b8Vx1QwZpL0TtXkHjN5YrCeRm7Ud")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

@@ -23,4 +23,5 @@ pip install -r requirements.txt
 # Run server
 uvicorn main:app --reload
 
---currently working on tokens (auth)
+--currently working on tokens (auth) 
+--currently working on token-protection

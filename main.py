@@ -6,7 +6,7 @@ from database import engine, Base , SessionLocal
 from sqlalchemy.orm import Session
 from user_routes import router as user_router
 from utils import(verify_password,hash_password,create_access_token,verify_token,oauth_scheme)
-import reminders_route
+import reminders_route, medication_route
 
 
 #creating table based on models
@@ -17,6 +17,7 @@ app = FastAPI()
 
 app.include_router(user_router)
 app.include_router(reminders_route.router)
+app.include_router(medication_route.router)
 
 
 
@@ -68,7 +69,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     access_token = create_access_token(data={"sub": str(user.id)})
-    return {"access_token": access_token, "token_type": "bearer", "user":user} 
+    return {
+    "access_token": access_token,
+    "token_type": "bearer",
+    "user_email": user.email,
+            }
+
 
 
 

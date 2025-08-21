@@ -9,24 +9,16 @@ from utils import hash_password, verify_password, create_access_token
 router = APIRouter(prefix="/users",tags=["User"])
 
 
-
-
-    
-
-
-@router.post("/", response_model=UserResponse)
+@router.post("/register", response_model=UserCreate)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already used")
-
-    
     hashed_password = hash_password(user.password)
-
     
-    new_user = User(email=user.email, password=hashed_password)
-
+    new_user = User(
+        email=user.email,
+        password=hashed_password,
+        name=user.name,
+    )
     db.add(new_user)
-    db.commit()  
+    db.commit()
     db.refresh(new_user)
-
     return new_user
