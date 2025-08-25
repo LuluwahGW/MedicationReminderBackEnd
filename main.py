@@ -1,11 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm 
-from pydantic import BaseModel
 import models
 from database import engine, Base , SessionLocal
 from sqlalchemy.orm import Session
 from user_routes import router as user_router
-from utils import(verify_password,hash_password,create_access_token,verify_token,oauth_scheme)
+from utils import(verify_password,create_access_token,verify_token,oauth_scheme)
 import reminders_route, medication_route
 
 

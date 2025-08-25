@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator, ValidationInfo
 from datetime import datetime
 
 class MedicationBase(BaseModel):
@@ -7,10 +7,15 @@ class MedicationBase(BaseModel):
     start_date : datetime
     end_date : datetime
     archived : bool = False
+    
 
 
-class MedicationCreate(MedicationBase):
-    user_id : int
+class MedicationCreate(BaseModel):
+    name : str
+    dosage : str
+    start_date : datetime
+    end_date : datetime
+    archived : bool = False
 
 
 class MedicationUpdate(BaseModel):
@@ -23,8 +28,10 @@ class MedicationUpdate(BaseModel):
 class MedicationOut(MedicationBase):
     id : int
     user_id : int
-    
+    archived : bool
 
 class Config:
     orm_mode = True
     from_attributes = True
+
+    
