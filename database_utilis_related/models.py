@@ -1,9 +1,8 @@
-from sqlalchemy import Column,String,Integer,Float,func,Table,ForeignKey,Boolean,DateTime
-from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime
+from sqlalchemy import Column,String,Integer,func,ForeignKey,Boolean,DateTime
+from sqlalchemy.orm import relationship
 from sqlalchemy import Enum as SqlEnum
 import enum
-from database import Base 
+from database_utilis_related.database import Base 
 
 
 
@@ -47,8 +46,6 @@ class Medication(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     name = Column(String(50), nullable=False)
     dosage = Column(String(10), nullable=False)
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime, nullable=False)
     archived = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="medications")

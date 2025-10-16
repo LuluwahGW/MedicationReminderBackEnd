@@ -1,11 +1,9 @@
-from pydantic import BaseModel, field_validator, ValidationInfo
+from pydantic import BaseModel
 from datetime import datetime
 
 class MedicationBase(BaseModel):
     name : str
     dosage : str
-    start_date : datetime
-    end_date : datetime
     archived : bool = False
     
 
@@ -13,16 +11,12 @@ class MedicationBase(BaseModel):
 class MedicationCreate(BaseModel):
     name : str
     dosage : str
-    start_date : datetime
-    end_date : datetime
     archived : bool = False
 
 
 class MedicationUpdate(BaseModel):
     name: str | None = None
     dosage: str | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
     archived: bool | None = None
 
 class MedicationOut(MedicationBase):

@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm 
-import models
-from database import engine, Base , SessionLocal
+import database_utilis_related.models as models
+from database_utilis_related.database import engine, Base , SessionLocal
 from sqlalchemy.orm import Session
-from user_routes import router as user_router
-from utils import(verify_password,create_access_token,verify_token,oauth_scheme)
-import reminders_route, medication_route
+from database_utilis_related.utils import(verify_password,create_access_token,verify_token,oauth_scheme)
+from caregiver_related import caregiver_route as caregiverRoute
+from medications_related import medication_route as medicationRoute
+from reminders_related import reminders_route as remindersRoute
+from user_related import user_routes as userRoute
 
 
 #creating table based on models
@@ -14,9 +16,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(user_router)
-app.include_router(reminders_route.router)
-app.include_router(medication_route.router)
+app.include_router(userRoute.hello)
+app.include_router(remindersRoute.router)
+app.include_router(medicationRoute.router)
+app.include_router(caregiverRoute.router)
 
 
 

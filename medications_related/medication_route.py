@@ -1,20 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-import models,medication_schema
-from utils import get_db, get_current_user
-from models import User, Medication
-from datetime import datetime, timezone
-
+import database_utilis_related.models as models
+from database_utilis_related.utils import get_db, get_current_user
+from database_utilis_related.models import User
+from .medication_schema import MedicationCreate, MedicationOut, MedicationUpdate
 router = APIRouter(prefix="/medications",tags=["Medications"])
 
 
-@router.post("/",response_model=medication_schema.MedicationOut)
-def create_medication(med : medication_schema.MedicationCreate, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
-    if med.end_date <= med.start_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="end_date must be after start_date"
-        )
+@router.post("/",response_model=MedicationOut)
+def create_medication(med : MedicationCreate, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
 
     existing = db.query(models.Medication).filter_by(
         user_id=current_user.id, name=med.name
@@ -29,8 +23,6 @@ def create_medication(med : medication_schema.MedicationCreate, db : Session = D
         user_id=current_user.id,
         name=med.name,
         dosage=med.dosage,
-        start_date=med.start_date,
-        end_date=med.end_date,
         archived=False
     )
     db.add(new_med)
@@ -38,12 +30,12 @@ def create_medication(med : medication_schema.MedicationCreate, db : Session = D
     db.refresh(new_med)
     return new_med
 
-@router.get("/me",response_model=list[medication_schema.MedicationOut])
+@router.get("/me",response_model=list[MedicationOut])
 def list_medications(current_user : User = Depends(get_current_user), db: Session = Depends(get_db)):
     meds = db.query(models.Medication).filter(models.Medication.user_id == current_user.id).all()
     return meds
 
-@router.get("/{med_id}", response_model=medication_schema.MedicationOut)
+@router.get("/{med_id}", response_model=MedicationOut)
 def get_medication(med_id : int, db : Session = Depends(get_db), include_archived : bool =False, current_user : User = Depends(get_current_user)):
     query = db.query(models.Medication).filter(models.Medication.user_id == current_user.id)
 
@@ -56,8 +48,8 @@ def get_medication(med_id : int, db : Session = Depends(get_db), include_archive
     return query.all()
 
 
-@router.put("/{med_id}", response_model=medication_schema.MedicationOut)
-def update_medication(med_id : int, med_update : medication_schema.MedicationUpdate, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
+@router.put("/{med_id}", response_model=MedicationOut)
+def update_medication(med_id : int, med_update : MedicationUpdate, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
 
     med = db.query(models.Medication).filter(models.Medication.id == med_id, models.Medication.user_id == current_user.id).first()
     

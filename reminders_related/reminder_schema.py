@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from models import FrequencyEnum
+from database_utilis_related.models import FrequencyEnum
 
 
 
