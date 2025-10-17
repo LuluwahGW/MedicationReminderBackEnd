@@ -8,13 +8,28 @@ from caregiver_related import caregiver_route as caregiverRoute
 from medications_related import medication_route as medicationRoute
 from reminders_related import reminders_route as remindersRoute
 from user_related import user_routes as userRoute
-
+from fastapi.middleware.cors import CORSMiddleware # connecting backend with front end (Cross-Origin-Resource-Sharing)
 
 #creating table based on models
 Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
+
+origins=[
+    "http://localhost:3000", # react app (still not sure abt this)
+    "http://127.0.0.1:5500" # live server VS
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allow all methods
+    allow_headers=["*"], # Allow all headers
+)
+
+
 
 app.include_router(userRoute.hello)
 app.include_router(remindersRoute.router)
