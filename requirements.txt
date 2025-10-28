@@ -4,5 +4,6 @@ sqlalchemy
 pydantic
 passlib[bcrypt]
 python-multipart
-pymysql
 mysql-connector-python
+python-jose[cryptography]
+email-validator
