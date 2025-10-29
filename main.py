@@ -8,6 +8,7 @@ from caregiver_related import caregiver_route as caregiverRoute
 from medications_related import medication_route as medicationRoute
 from reminders_related import reminders_route as remindersRoute
 from user_related import user_routes as userRoute
+from motivationtext_related import motivationtext_route as motiveRoute
 from fastapi.middleware.cors import CORSMiddleware # connecting backend with front end (Cross-Origin-Resource-Sharing)
 
 #creating table based on models
@@ -35,6 +36,7 @@ app.include_router(userRoute.hello)
 app.include_router(remindersRoute.router)
 app.include_router(medicationRoute.router)
 app.include_router(caregiverRoute.router)
+app.include_router(motiveRoute.router)
 
 
 
