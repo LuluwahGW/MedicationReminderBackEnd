@@ -32,7 +32,12 @@ def create_medication(med : MedicationCreate, db : Session = Depends(get_db), cu
 
 @router.get("/me",response_model=list[MedicationOut])
 def list_medications(current_user : User = Depends(get_current_user), db: Session = Depends(get_db)):
-    meds = db.query(models.Medication).filter(models.Medication.user_id == current_user.id).all()
+    meds = db.query(models.Medication).filter(models.Medication.user_id == current_user.id, models.Medication.archived == False).all()
+    return meds
+
+@router.get("/archived",response_model=list[MedicationOut])
+def list_archived_medications(current_user : User = Depends(get_current_user), db: Session = Depends(get_db)):
+    meds = db.query(models.Medication).filter(models.Medication.user_id == current_user.id, models.Medication.archived == True).all()
     return meds
 
 @router.get("/{med_id}", response_model=MedicationOut)
@@ -62,8 +67,8 @@ def update_medication(med_id : int, med_update : MedicationUpdate, db : Session 
     db.commit()
     db.refresh(med)
     return med
-
-@router.delete("/archive/{med_id}", status_code=200)
+# delete put
+@router.put("/archive/{med_id}", status_code=200)
 def archive_medication(
     med_id: int,
     db: Session = Depends(get_db),

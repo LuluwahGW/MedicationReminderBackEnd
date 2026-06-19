@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Reminder System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Medication Reminder</h1>
+
+        <div id="login-section" class="card">
+            <h2>User Login</h2>
+            <div class="form-group">
+                <input type="email" id="login-email" placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-password" placeholder="Password" required>
+            </div>
+            <button onclick="handleLogin()" class="btn-primary">Login</button>
+        </div>
+
+        <div id="dashboard" style="display:none;">
+            <div class="header-actions">
+                <h2 id="welcome-msg">Dashboard</h2>
+                <button onclick="handleLogout()" class="btn-danger">Logout</button>
+            </div>
+
+            <div class="section card">
+                <h3>Add New Medication</h3>
+                <div class="form-group">
+                    <input type="text" id="med-name" placeholder="Medication Name">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="med-dosage" placeholder="Dosage (e.g., 500mg)">
+                </div>
+                <button onclick="handleAddMedication()" class="btn-success">Add Medication</button>
+            </div>
+
+            <div class="section card">
+                <h3>Your Medications</h3>
+                <button onclick="fetchMedications()" class="btn-secondary">Refresh List</button>
+                <ul id="med-list" class="item-list"></ul>
+            </div>
+<div class="section card">
+                <h3>Your Archived Medications</h3>
+                <button onclick="fetchArchivedMedications()" class="btn-secondary">Refresh List</button>
+                <ul id="archived-med-list" class="item-list"></ul>
+            </div>
+            <div class="section card">
+                <h3>Set a New Reminder</h3>
+                <div class="form-group">
+                    <label for="rem-med-id">Select Medication:</label>
+                    <select id="rem-med-id">
+                        <option value="">-- Choose a Medication --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="rem-name" placeholder="Reminder Title">
+                </div>
+                <div class="form-group">
+                    <label for="rem-time">Time:</label>
+                    <input type="datetime-local" id="rem-time">
+                </div>
+                <div class="form-group">
+                    <select id="rem-freq">
+                        <option value="ONCE">Once</option>
+                        <option value="DAILY">Daily</option>
+                        <option value="WEEKLY">Weekly</option>
+                        <option value="MONTHLY">Monthly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="rem-msg" placeholder="Instructions"></textarea>
+                </div>
+                <button onclick="handleCreateReminder()" class="btn-primary">Set Reminder</button>
+            </div>
+
+            <div class="section card motivation-box">
+                <h3>Daily Motivation</h3>
+                <p id="motivation-display">Click the button for a boost!</p>
+                <button onclick="fetchMotivation()" class="btn-secondary">Get Inspired</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -9,7 +9,7 @@ from medications_related import medication_route as medicationRoute
 from reminders_related import reminders_route as remindersRoute
 from user_related import user_routes as userRoute
 from motivationtext_related import motivationtext_route as motiveRoute
-from fastapi.middleware.cors import CORSMiddleware # connecting backend with front end (Cross-Origin-Resource-Sharing)
+from fastapi.middleware.cors import CORSMiddleware # connecting back-end with front-end (Cross-Origin-Resource-Sharing)
 
 #creating table based on models
 Base.metadata.create_all(bind=engine)

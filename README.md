@@ -25,7 +25,7 @@ A backend API built with FastAPI and SQLAlchemy for creating and managing users,
 * Passlib (for password hashing)
 * python-jose (for JWT)
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Prerequisites
 

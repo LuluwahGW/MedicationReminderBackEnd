@@ -8,14 +8,23 @@ from database_utilis_related.utils import hash_password
 hello = APIRouter(prefix="/users",tags=["User"])
 
 
-@hello.post("/register", response_model=UserCreate)
+@hello.post("/register", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+
+    # Check if email exists
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
     hashed_password = hash_password(user.password)
     
     new_user = User(
         email=user.email,
         password=hashed_password,
-        name=user.name,
+        name=user.name
     )
     db.add(new_user)
     db.commit()
@@ -23,19 +32,19 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @hello.patch("/me",response_model=UserResponse) #using /me path due to security reasons + current user for authorization
-def update_user(user_update : UserUpdate, db : Session = Depends(get_db),CU : User = Depends(get_current_user)):
+def update_user(user_update : UserUpdate, db : Session = Depends(get_db),current_user : User = Depends(get_current_user)):
     if user_update.email:
         existing_user = db.query(User).filter(User.email == user_update.email).first()
 
-        if existing_user and existing_user.id != CU.id:
+        if existing_user and existing_user.id != current_user.id:
             raise HTTPException(status_code=400,detail="Email already registered")
         
     for key , value in user_update.model_dump(exclude_unset=True).items():
-        setattr(CU, key, value)    
+        setattr(current_user, key, value)    
 
     db.commit()
-    db.refresh(CU)
-    return CU    
+    db.refresh(current_user)
+    return current_user    
 
 @hello.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
