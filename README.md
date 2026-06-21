@@ -44,7 +44,7 @@ A backend API built with FastAPI and SQLAlchemy for creating and managing users,
     
     pip install -r requirements.txt
     
-
+s
 3.  Configure the database:
     * Ensure your MySQL server is running.
     * Create a database (e.g., `medications_db`).

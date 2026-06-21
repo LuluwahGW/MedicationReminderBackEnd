@@ -1,15 +1,15 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm 
+from fastapi import FastAPI, Depends, HTTPException, status  # type: ignore[import]
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm  # type: ignore[import]
 import database_utilis_related.models as models
 from database_utilis_related.database import engine, Base , SessionLocal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session  # type: ignore[import]
 from database_utilis_related.utils import(verify_password,create_access_token,verify_token,oauth_scheme)
 from caregiver_related import caregiver_route as caregiverRoute
 from medications_related import medication_route as medicationRoute
 from reminders_related import reminders_route as remindersRoute
 from user_related import user_routes as userRoute
 from motivationtext_related import motivationtext_route as motiveRoute
-from fastapi.middleware.cors import CORSMiddleware # connecting back-end with front-end (Cross-Origin-Resource-Sharing)
+from fastapi.middleware.cors import CORSMiddleware  # type: ignore[import] # connecting back-end with front-end (Cross-Origin-Resource-Sharing)
 
 #creating table based on models
 Base.metadata.create_all(bind=engine)
@@ -18,7 +18,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins=[
-    "http://localhost:3000", # react app (still not sure abt this)
+    #"http://localhost:3000", # react app (still not sure abt this)
     "http://127.0.0.1:5500" # live server VS
 ]
 

@@ -6,6 +6,7 @@ from jose import JWTError, jwt,ExpiredSignatureError
 import os , database_utilis_related.models as models
 from sqlalchemy.orm import Session
 from database_utilis_related.database  import SessionLocal
+from typing import Optional
 
 
 def get_db():
@@ -17,13 +18,15 @@ def get_db():
 
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    truncated = password.encode("utf-8")[:72]
+    return pwd_context.hash(truncated)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    truncated = plain_password.encode("utf-8")[:72]
+    return pwd_context.verify(truncated, hashed_password)
 
 
 
@@ -33,9 +36,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc)+ (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, str(SECRET_KEY), algorithm=ALGORITHM)
     return encoded_jwt
