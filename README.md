@@ -1,21 +1,44 @@
-# Medication Reminder API
+# Medication Reminder
 
-A backend API built with FastAPI and SQLAlchemy for creating and managing users, medications, reminders, and caregiver-patient links.
+A full-stack medication reminder project: a **FastAPI + SQLAlchemy + MySQL backend** for managing users, medications, reminders, and caregiver-patient links, plus a **simple vanilla HTML/JS frontend** for testing the API.
+
+## Project Structure
+
+```
+MedicationReminderBackEnd/
+├── backend/
+│   ├── main.py                     # FastAPI app entrypoint, routers, auth
+│   ├── requirements.txt            # Python dependencies
+│   ├── database_utilis_related/    # DB connection, models, auth utils
+│   ├── user_related/               # Registration, login, profile
+│   ├── medications_related/        # Medication CRUD
+│   ├── reminders_related/          # Reminder CRUD
+│   ├── caregiver_related/          # Caregiver-patient linking
+│   └── motivationtext_related/     # Random motivational messages
+└── frontend/
+    ├── index.html                  # Test UI (login, dashboard, forms)
+    └── script.js                   # Calls the backend API
+```
 
 ## Features
 
-* **User Management:** User registration, login, and profile updates.
-* **Authentication:** Secure JWT (JSON Web Token) authentication for all protected routes.
+* **User Management:** Registration, login, and profile updates.
+* **Authentication:** JWT (JSON Web Token) authentication for all protected routes.
 * **Medication Management:** Full CRUD (Create, Read, Update, Delete) operations for medications, including archiving.
-* **Reminder Management:** Full CRUD operations for reminders, linked to specific medications and users.
+* **Reminder Management:** Full CRUD operations for reminders, linked to specific medications and users, with support for one-time, daily, weekly, and monthly frequency.
 * **Caregiver System:**
     * Patients can assign caregivers.
     * Caregivers can view a list of their assigned patients and their non-archived medications.
-* **Motivational Text:** A simple endpoint to retrieve random motivational messages.
-* **CORS Enabled:** Configured to allow requests from `http://localhost:3000` and `http://127.0.0.1:5500`.
+* **Motivational Text:** An endpoint to retrieve random motivational messages, surfaced on the dashboard.
+* **CORS Enabled:** Configured to allow requests from the local frontend (`http://127.0.0.1:5500` by default).
+
+## Frontend Status
+
+The `frontend/` folder is a minimal, functional HTML/JS client used to exercise the API (login, add/view/archive medications, create reminders, fetch motivation). **It currently has no styling** — `index.html` references a `styles.css` file that doesn't exist yet, so the page will render unstyled. Styling is a planned next step; contributions welcome.
 
 ## 🛠 Tech Stack
 
+**Backend**
 * Python 3.11+
 * FastAPI
 * SQLAlchemy
@@ -25,36 +48,47 @@ A backend API built with FastAPI and SQLAlchemy for creating and managing users,
 * Passlib (for password hashing)
 * python-jose (for JWT)
 
-##  Getting Started
+**Frontend**
+* HTML5
+* Vanilla JavaScript (fetch API)
+* CSS — *not yet implemented*
+
+## Getting Started
 
 ### 1. Prerequisites
 
 * Python 3.11+
 * A running MySQL server
+* (Optional) A simple static server for the frontend, e.g. VS Code's Live Server extension
 
-### 2. Installation & Setup
+### 2. Backend Setup
 
 1.  Clone the repository:
-    
-    git clone [https://github.com/LuluwahGW/MedicationReminderBackEnd.git]
-    cd [MedicationReminderBackEnd]
-    
+    ```
+    git clone https://github.com/LuluwahGW/MedicationReminderBackEnd.git
+    cd MedicationReminderBackEnd/backend
+    ```
 
 2.  Install dependencies:
-    
+    ```
     pip install -r requirements.txt
-    
-s
+    ```
+
 3.  Configure the database:
     * Ensure your MySQL server is running.
     * Create a database (e.g., `medications_db`).
     * Update the `DATABASE_URL` string in `database_utilis_related/database.py` with your MySQL username, password, host, and database name.
 
 4.  Run the server:
-    
+    ```
     uvicorn main:app --reload
-    
+    ```
     The API will be live at `http://127.0.0.1:8000`.
+
+### 3. Frontend Setup
+
+1.  Open `frontend/index.html` with a static file server (e.g. Live Server, defaulting to `http://127.0.0.1:5500`), so it matches the CORS origin configured in `main.py`.
+2.  The page will load unstyled until `frontend/styles.css` is added — the JS functionality (login, medication/reminder management) works regardless.
 
 ## API Endpoints
 

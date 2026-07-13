@@ -7,18 +7,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <header class="hero">
         <h1>Medication Reminder</h1>
+        <p class="subtitle" id="app-subtitle">Developed by me</p>
+    </header>
 
-        <div id="login-section" class="card">
-            <h2>User Login</h2>
+    <div class="container">
+        <div id="login-section" class="card login-card">
+            <h2>Sign In</h2>
             <div class="form-group">
-                <input type="email" id="login-email" placeholder="Email Address" required>
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Value" required>
             </div>
             <div class="form-group">
-                <input type="password" id="login-password" placeholder="Password" required>
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Value" required>
             </div>
-            <button onclick="handleLogin()" class="btn-primary">Login</button>
+            <button onclick="handleLogin()" class="btn-primary btn-block">Sign In</button>
         </div>
 
         <div id="dashboard" style="display:none;">
@@ -82,6 +87,8 @@
                 <p id="motivation-display">Click the button for a boost!</p>
                 <button onclick="fetchMotivation()" class="btn-secondary">Get Inspired</button>
             </div>
+
+            <div class="blob" aria-hidden="true"></div>
         </div>
     </div>
     <script src="script.js"></script>

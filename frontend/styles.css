@@ -1,0 +1,393 @@
+/* =========================================================
+   Medication Reminder — styles.css
+   Matches Figma frames: login, dashboard, add/edit forms,
+   caregiver read-only view.
+   ========================================================= */
+
+:root {
+  --hero-bg: #938fa3;
+  --hero-bg-light: #b0abbf;
+  --page-bg: #dcdcdc;
+  --card-bg: #efeaf7;
+  --card-bg-soft: #f2eef9;
+  --white: #ffffff;
+  --ink: #262626;
+  --muted: #8a8a8a;
+  --border: #d8d3e6;
+
+  --accent-purple: #5b4b8a;
+  --accent-purple-dark: #493c70;
+  --dark-btn: #262626;
+  --dark-btn-hover: #101010;
+
+  --danger: #c0392b;
+  --danger-hover: #a5301f;
+  --success: #2f8f5b;
+  --success-hover: #257148;
+  --warning: #d99a2b;
+  --warning-hover: #b87f1e;
+  --secondary: #6d6d78;
+  --secondary-hover: #56565f;
+
+  --icon-yellow: #e8b930;
+  --icon-pink: #d6368f;
+  --icon-green: #1f6f4a;
+
+  --blob-pink: #f4c6cf;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+
+  --font-display: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+/* ---------- Hero / header band ---------- */
+
+.hero {
+  background: var(--hero-bg);
+  text-align: center;
+  padding: 56px 24px 72px;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  letter-spacing: -1px;
+  color: #1c1c1c;
+  margin: 0;
+}
+
+.hero .subtitle {
+  font-size: 1.25rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 6px 0 0;
+  font-weight: 400;
+}
+
+/* ---------- Layout container ---------- */
+
+.container {
+  max-width: 760px;
+  margin: -40px auto 80px;
+  padding: 0 20px;
+  position: relative;
+}
+
+/* ---------- Cards (shared) ---------- */
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.section {
+  margin-top: 28px;
+}
+
+/* ---------- Login card ---------- */
+
+.login-card {
+  background: var(--white);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.login-card h2 {
+  margin-top: 0;
+  font-weight: 600;
+}
+
+/* ---------- Form elements ---------- */
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="datetime-local"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b3b3b3;
+}
+
+input:disabled {
+  background: #e6e6e6;
+  color: #9a9a9a;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--dark-btn);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: var(--dark-btn-hover);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: var(--white);
+}
+.btn-danger:hover {
+  background: var(--danger-hover);
+}
+
+.btn-success {
+  background: var(--success);
+  color: var(--white);
+}
+.btn-success:hover {
+  background: var(--success-hover);
+}
+
+.btn-warning {
+  background: var(--warning);
+  color: var(--white);
+}
+.btn-warning:hover {
+  background: var(--warning-hover);
+}
+
+.btn-secondary {
+  background: var(--secondary);
+  color: var(--white);
+}
+.btn-secondary:hover {
+  background: var(--secondary-hover);
+}
+
+/* ---------- Dashboard header ---------- */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.header-actions h2 {
+  margin: 0;
+}
+
+/* ---------- Medication list ---------- */
+
+.item-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.item-list li {
+  border-bottom: 1px solid var(--border);
+}
+
+.item-list li:last-child {
+  border-bottom: none;
+}
+
+.med-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+}
+
+.med-info {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.archived-tag {
+  color: var(--danger);
+  margin-left: 6px;
+}
+
+.med-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.med-icon::before,
+.med-icon::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.med-icon::before {
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 3px;
+  transform: translateY(-50%);
+}
+.med-icon::after {
+  top: 15%;
+  bottom: 15%;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+}
+
+.icon-yellow {
+  color: var(--icon-yellow);
+}
+.icon-pink {
+  color: var(--icon-pink);
+}
+.icon-green {
+  color: var(--icon-green);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+
+/* ---------- Reminder frequency select (styled like Figma pill) ---------- */
+
+#rem-freq {
+  display: inline-block;
+  width: auto;
+  background: var(--accent-purple);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+#rem-freq:hover {
+  background: var(--accent-purple-dark);
+}
+
+/* ---------- Motivation box ---------- */
+
+.motivation-box {
+  text-align: center;
+}
+
+.motivation-box p {
+  font-style: italic;
+  color: var(--muted);
+  min-height: 24px;
+}
+
+/* ---------- Decorative blob (visual only) ---------- */
+
+.blob {
+  width: 220px;
+  height: 220px;
+  background: var(--blob-pink);
+  border-radius: 55% 45% 60% 40% / 50% 55% 45% 50%;
+  margin: 60px auto 0;
+  opacity: 0.9;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 560px) {
+  .hero {
+    padding: 40px 16px 56px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .med-item {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+}
+
+/* ---------- Accessibility ---------- */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

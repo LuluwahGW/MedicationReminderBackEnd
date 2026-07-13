@@ -67,6 +67,8 @@ async function fetchArchivedMedications() {
 }
 
 // --- 3. UI MANAGEMENT ---
+const MED_ICON_COLORS = ['icon-yellow', 'icon-pink', 'icon-green'];
+
 function renderMedications(meds, listId) {
     const list = document.getElementById(listId);
     const dropdown = document.getElementById('rem-med-id');
@@ -86,8 +88,9 @@ function renderMedications(meds, listId) {
     
     list.innerHTML = ""; // Clear existing items
 
-    meds.forEach(m => {
+    meds.forEach((m, i) => {
         const li = document.createElement('li');
+        const iconColor = MED_ICON_COLORS[i % MED_ICON_COLORS.length];
         
         // This logic checks the 'archived' status from your MySQL database
         const actionButton = m.archived 
@@ -96,9 +99,10 @@ function renderMedications(meds, listId) {
 
         li.innerHTML = `
             <div class="med-item">
-                <span>
+                <span class="med-icon ${iconColor}" aria-hidden="true"></span>
+                <span class="med-info">
                     <strong>${m.name}</strong> - ${m.dosage} 
-                    ${m.archived ? '<b style="color:red;">[ARCHIVED]</b>' : ''}
+                    ${m.archived ? '<b class="archived-tag">[ARCHIVED]</b>' : ''}
                 </span>
                 <div class="actions">
                     ${actionButton}
@@ -113,6 +117,7 @@ function renderMedications(meds, listId) {
 function showDashboard() {
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('app-subtitle').textContent = 'medication list';
     fetchMedications();
     fetchArchivedMedications();
 }
