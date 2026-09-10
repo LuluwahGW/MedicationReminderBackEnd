@@ -1,115 +1,127 @@
 # Medication Reminder
 
-A full-stack medication reminder project: a **FastAPI + SQLAlchemy + MySQL backend** for managing users, medications, reminders, and caregiver-patient links, plus a **simple vanilla HTML/JS frontend** for testing the API.
+A full-stack medication management app: a **FastAPI + SQLAlchemy** REST API with JWT
+authentication for users, medications, reminders, and caregiver–patient links, plus a
+lightweight vanilla HTML/JS frontend that consumes the API.
 
-## Project Structure
+![status](https://github.com/LuluwahGW/MedicationReminderBackEnd/actions/workflows/ci.yml/badge.svg)
+
+## Features
+
+- **Authentication** — registration with password-strength rules, JWT bearer tokens
+  (`python-jose`), bcrypt password hashing (`passlib`).
+- **Medications** — full CRUD per user, plus archive / unarchive; every query is scoped
+  to the authenticated owner.
+- **Reminders** — CRUD linked to a medication, with `ONCE` / `DAILY` / `WEEKLY` /
+  `MONTHLY` frequency; a reminder can only be created against a medication you own.
+- **Caregivers** — a patient can assign another user as a caregiver; caregivers get a
+  read-only view of their patients' active medications.
+- **Motivational messages** — random message endpoint, seeded from a committed JSON file
+  that is synced into the database on startup (no manual seeding step).
+- **Tested** — pytest suite covering auth, ownership isolation, and the main flows; run
+  automatically in CI on every push.
+
+## Tech stack
+
+| Layer    | Choice |
+|----------|--------|
+| API      | FastAPI, Pydantic v2 |
+| ORM / DB | SQLAlchemy 2, SQLite by default (`DATABASE_URL` swaps in Postgres/MySQL) |
+| Auth     | JWT (`python-jose`), bcrypt (`passlib`) |
+| Config   | `python-dotenv` |
+| Tests    | pytest, Starlette `TestClient` |
+| CI       | GitHub Actions |
+| Frontend | HTML + vanilla JS (`fetch`) + CSS |
+
+## Project structure
 
 ```
 MedicationReminderBackEnd/
 ├── backend/
-│   ├── main.py                     # FastAPI app entrypoint, routers, auth
-│   ├── requirements.txt            # Python dependencies
-│   ├── database_utilis_related/    # DB connection, models, auth utils
-│   ├── user_related/               # Registration, login, profile
-│   ├── medications_related/        # Medication CRUD
-│   ├── reminders_related/          # Reminder CRUD
-│   ├── caregiver_related/          # Caregiver-patient linking
-│   └── motivationtext_related/     # Random motivational messages
-└── frontend/
-    ├── index.html                  # Test UI (login, dashboard, forms)
-    └── script.js                   # Calls the backend API
+│   ├── main.py                     # app factory, lifespan, /login, /me, health
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── pytest.ini
+│   ├── .env.example
+│   ├── database_utilis_related/    # engine/session, ORM models, auth utils
+│   ├── user_related/               # register, update, delete account
+│   ├── medications_related/        # medication CRUD + archive
+│   ├── reminders_related/          # reminder CRUD
+│   ├── caregiver_related/          # caregiver assignment + patient views
+│   ├── motivationtext_related/     # random messages + motivation_quotes.json
+│   └── tests/
+├── frontend/                       # index.html, script.js, styles.css
+└── .github/workflows/ci.yml
 ```
 
-## Features
+## Getting started
 
-* **User Management:** Registration, login, and profile updates.
-* **Authentication:** JWT (JSON Web Token) authentication for all protected routes.
-* **Medication Management:** Full CRUD (Create, Read, Update, Delete) operations for medications, including archiving.
-* **Reminder Management:** Full CRUD operations for reminders, linked to specific medications and users, with support for one-time, daily, weekly, and monthly frequency.
-* **Caregiver System:**
-    * Patients can assign caregivers.
-    * Caregivers can view a list of their assigned patients and their non-archived medications.
-* **Motivational Text:** An endpoint to retrieve random motivational messages, surfaced on the dashboard.
-* **CORS Enabled:** Configured to allow requests from the local frontend (`http://127.0.0.1:5500` by default).
+### Backend
 
-## Frontend Status
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 
-The `frontend/` folder is a minimal, functional HTML/JS client used to exercise the API (login, add/view/archive medications, create reminders, fetch motivation). **It currently has no styling** — `index.html` references a `styles.css` file that doesn't exist yet, so the page will render unstyled. Styling is a planned next step; contributions welcome.
+cp .env.example .env
+# set SECRET_KEY in .env — generate one with:
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 
-## 🛠 Tech Stack
+uvicorn main:app --reload
+```
 
-**Backend**
-* Python 3.11+
-* FastAPI
-* SQLAlchemy
-* MySQL
-* Pydantic
-* Uvicorn
-* Passlib (for password hashing)
-* python-jose (for JWT)
+API: <http://127.0.0.1:8000> · interactive docs: <http://127.0.0.1:8000/docs>
 
-**Frontend**
-* HTML5
-* Vanilla JavaScript (fetch API)
-* CSS — *not yet implemented*
+The database (SQLite file) and tables are created automatically on first run.
 
-## Getting Started
+### Frontend
 
-### 1. Prerequisites
+Serve `frontend/` with any static server on port 5500 so it matches the CORS allow-list
+(VS Code Live Server, or):
 
-* Python 3.11+
-* A running MySQL server
-* (Optional) A simple static server for the frontend, e.g. VS Code's Live Server extension
+```bash
+cd frontend && python -m http.server 5500 --bind 127.0.0.1
+```
 
-### 2. Backend Setup
+Then open <http://127.0.0.1:5500>.
 
-1.  Clone the repository:
-    ```
-    git clone https://github.com/LuluwahGW/MedicationReminderBackEnd.git
-    cd MedicationReminderBackEnd/backend
-    ```
+### Docker
 
-2.  Install dependencies:
-    ```
-    pip install -r requirements.txt
-    ```
+```bash
+cd backend
+docker build -t medication-reminder .
+docker run -p 8000:8000 -e SECRET_KEY=$(python -c "import secrets;print(secrets.token_urlsafe(32))") medication-reminder
+```
 
-3.  Configure the database:
-    * Ensure your MySQL server is running.
-    * Create a database (e.g., `medications_db`).
-    * Update the `DATABASE_URL` string in `database_utilis_related/database.py` with your MySQL username, password, host, and database name.
+## Tests
 
-4.  Run the server:
-    ```
-    uvicorn main:app --reload
-    ```
-    The API will be live at `http://127.0.0.1:8000`.
+```bash
+cd backend && pytest
+```
 
-### 3. Frontend Setup
+## API overview
 
-1.  Open `frontend/index.html` with a static file server (e.g. Live Server, defaulting to `http://127.0.0.1:5500`), so it matches the CORS origin configured in `main.py`.
-2.  The page will load unstyled until `frontend/styles.css` is added — the JS functionality (login, medication/reminder management) works regardless.
+Protected routes require an `Authorization: Bearer <token>` header.
 
-## API Endpoints
+| Method & path | Description |
+|---|---|
+| `POST /users/register` | Create an account |
+| `POST /login` | Get a JWT (form-encoded: `username`, `password`) |
+| `GET /me` | Current user |
+| `PATCH /users/me` · `DELETE /users/me` | Update / delete own account |
+| `POST /medications/` · `GET /medications/me` · `GET /medications/archived` | Create / list |
+| `GET /medications/{id}` · `PUT /medications/{id}` · `DELETE /medications/{id}` | Read / update / delete one |
+| `PUT /medications/archive/{id}` | Archive |
+| `POST /reminders/` · `GET /reminders/` | Create / list own reminders |
+| `PATCH /reminders/{id}` · `DELETE /reminders/{id}` | Update / delete |
+| `POST /caregivers/assign` · `DELETE /caregivers/{cg_id}` | Manage own caregivers |
+| `GET /caregivers/me/patients` · `GET /caregivers/patients/{id}/medications` | Caregiver views |
+| `GET /motivation/random` · `POST /motivation/` | Random message / add one |
 
-All protected routes require a `Bearer` token in the Authorization header.
+## Roadmap
 
-* `POST /login`: Authenticate and receive a JWT token.
-* `POST /users/register`: Register a new user.
-* `PATCH /users/me`: Update the current user's details.
-* `DELETE /users/me`: Delete the current user and their associated data.
-* `POST /medications/`: Create a new medication.
-* `GET /medications/me`: List all of the current user's medications.
-* `GET /medications/{med_id}`: Get a specific medication.
-* `PUT /medications/{med_id}`: Update a medication.
-* `DELETE /medications/archive/{med_id}`: Archive a medication.
-* `DELETE /medications/{med_id}`: Permanently delete a medication.
-* `POST /reminders/`: Create a new reminder.
-* `GET /reminders/{user_id}`: Get all reminders for the current user.
-* `PATCH /reminders/{reminder_id}`: Update a reminder.
-* `DELETE /reminders/{reminder_id}`: Delete a reminder.
-* `POST /caregivers/assign`: Assign a caregiver to the current user.
-* `DELETE /caregivers/{caregiver_id}`: Remove an assigned caregiver.
-* `GET /caregivers/me/patients`: (As a caregiver) Get all assigned patients and their medications.
-* `GET /caregivers/patients/{patient_id}/medications`: (As a caregiver) Get medications for a specific patient.
-* `GET /motivation/random`: Get a random motivational text.
+- Actually *deliver* reminders (background scheduler + email/push) — currently reminders
+  are only stored and queried.
+- Alembic migrations instead of `create_all`.
+- Caregiver invitations require the caregiver's acceptance.
+- Move `/login` and auth helpers into a dedicated `auth` module.
