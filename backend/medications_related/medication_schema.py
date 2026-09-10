@@ -23,9 +23,6 @@ class MedicationOut(MedicationBase):
     id : int
     user_id : int
     archived : bool
-
-class Config:
-    orm_mode = True
-    from_attributes = True
+    model_config = {"from_attributes": True}
 
     

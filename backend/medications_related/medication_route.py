@@ -41,16 +41,16 @@ def list_archived_medications(current_user : User = Depends(get_current_user), d
     return meds
 
 @router.get("/{med_id}", response_model=MedicationOut)
-def get_medication(med_id : int, db : Session = Depends(get_db), include_archived : bool =False, current_user : User = Depends(get_current_user)):
-    query = db.query(models.Medication).filter(models.Medication.user_id == current_user.id)
+def get_medication(med_id : int, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
+    med = db.query(models.Medication).filter(
+        models.Medication.id == med_id,
+        models.Medication.user_id == current_user.id,
+    ).first()
 
-    if not query:
-        raise HTTPException(status_code=404,detail="Medication Not Found")
-    
-    if not include_archived:
-        query = query.filter(models.Medication.archived == False)
+    if not med:
+        raise HTTPException(status_code=404, detail="Medication not found")
 
-    return query.all()
+    return med
 
 
 @router.put("/{med_id}", response_model=MedicationOut)
@@ -92,12 +92,12 @@ def archive_medication(
 
 
 
-@router.delete("/{med_id}",status_code= status.HTTP_204_NO_CONTENT)
+@router.delete("/{med_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_medication(med_id : int, db : Session = Depends(get_db), current_user : User = Depends(get_current_user)):
     med = db.query(models.Medication).filter(models.Medication.id == med_id, models.Medication.user_id == current_user.id).first()
     if not med:
-        raise HTTPException(status_code=404, detail="Medication Not Found")
+        raise HTTPException(status_code=404, detail="Medication not found")
     db.delete(med)
     db.commit()
-    return {"detail":"Medication Deleted"}
+    return None
 

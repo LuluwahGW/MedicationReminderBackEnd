@@ -16,13 +16,10 @@ class CareGiverCreate(CareGiverBase):
 
 class CareGiverOut(CareGiverBase):
     id : int
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class PatientWithMedications(BaseModel):
     patient_id : int
     patient_email : str
     medications : List[medication_schema.MedicationOut]
-
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}

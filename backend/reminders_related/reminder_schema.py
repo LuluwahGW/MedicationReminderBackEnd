@@ -35,7 +35,4 @@ class ReminderUpdate(ReminderBase): # | none could update a value or not
     frequency: FrequencyEnum | None = None
     message: str | None = None
     isTaken: bool | None = None
-
-class Config:
-    orm_mode = True  
-    use_enum_values = True  
+    model_config = {"from_attributes": True, "use_enum_values": True}  

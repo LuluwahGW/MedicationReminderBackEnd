@@ -8,6 +8,4 @@ class MotivationTextCreate(MotivationTextBase):
 
 class MotivationTextOut(MotivationTextBase):
     message_id : int   #based on the same table in db
-
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}

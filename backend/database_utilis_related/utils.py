@@ -1,12 +1,18 @@
-from passlib.context import CryptContext
+import os
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status , Depends
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt,ExpiredSignatureError
-import os , database_utilis_related.models as models
-from sqlalchemy.orm import Session
-from database_utilis_related.database  import SessionLocal
 from typing import Optional
+
+from dotenv import load_dotenv
+from passlib.context import CryptContext
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt, ExpiredSignatureError
+from sqlalchemy.orm import Session
+
+import database_utilis_related.models as models
+from database_utilis_related.database import SessionLocal
+
+load_dotenv()
 
 
 def get_db():
@@ -30,9 +36,15 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 
-SECRET_KEY = os.getenv("SECRET_KEY")  #9sF3b8Vx1QwZpL0TtXkHjN5YrCeRm7Ud
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not set. Copy .env.example to .env and set a value "
+        "(generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\")."
+    )
+
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -41,13 +53,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, str(SECRET_KEY), algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def verify_token(token : str):
+def verify_token(token: str):
     try:
-        payload = jwt.decode(token, str(SECRET_KEY) , algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code= status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -60,7 +72,12 @@ def verify_token(token : str):
 
 async def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
     user_id = verify_token(token)
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user

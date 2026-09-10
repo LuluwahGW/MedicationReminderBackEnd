@@ -16,6 +16,9 @@ def assign_caregiver(
     current_user: models.User = Depends(get_current_user)
 ):
     
+    if caregiver_data.cg_id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot assign yourself as your own caregiver")
+
     caregiver_user = db.query(models.User).filter_by(id=caregiver_data.cg_id).first()
     if not caregiver_user:
         raise HTTPException(status_code=404, detail="Caregiver user not found")

@@ -1,14 +1,19 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-#checking if db exists, if not making one
-DATABASE_URL = "mysql+mysqlconnector://root:root1234@localhost/medications_db"
+load_dotenv()
 
-#connecting db to file
-engine = create_engine(DATABASE_URL,echo=True)
+# SQLite by default so the project runs with zero setup; override with a
+# Postgres/MySQL URL in .env for a real deployment.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./medications_db.db")
 
-#creating a session factory?
-SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-#base class for models to inherit
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
