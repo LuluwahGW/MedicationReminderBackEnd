@@ -1,5 +1,31 @@
 const API_URL = "http://127.0.0.1:8000";
 
+// --- 0. AUTH TAB + MESSAGES ---
+function showAuthTab(tab) {
+    const isSignin = tab === 'signin';
+    document.getElementById('signin-form').hidden = !isSignin;
+    document.getElementById('signup-form').hidden = isSignin;
+    document.getElementById('tab-signin').classList.toggle('is-active', isSignin);
+    document.getElementById('tab-signup').classList.toggle('is-active', !isSignin);
+    setAuthMessage('');
+}
+
+function setAuthMessage(text, isError = false) {
+    const el = document.getElementById('auth-message');
+    el.textContent = text;
+    el.classList.toggle('is-error', isError);
+}
+
+// Turn FastAPI's error payload into a readable string.
+function formatError(data, fallback) {
+    if (Array.isArray(data?.detail)) {
+        return data.detail
+            .map(e => (e.msg || '').replace(/^Value error,\s*/, ''))
+            .join('\n');
+    }
+    return data?.detail || fallback;
+}
+
 // --- 1. LOGIN LOGIC ---
 async function handleLogin() {
     const email = document.getElementById('login-email').value;
@@ -24,10 +50,39 @@ async function handleLogin() {
             localStorage.setItem('userEmail', data.user_email);
             showDashboard();
         } else {
-            alert(data.detail || "Login failed. Check your credentials.");
+            setAuthMessage(formatError(data, "Login failed. Check your credentials."), true);
         }
     } catch (err) {
         console.error("Connection error:", err);
+        setAuthMessage("Couldn't reach the server. Is the backend running?", true);
+    }
+}
+
+// --- 1b. REGISTRATION LOGIC ---
+async function handleRegister() {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+
+    try {
+        const response = await fetch(`${API_URL}/users/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            // Registration succeeded — log the new user straight in.
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = password;
+            await handleLogin();
+        } else {
+            setAuthMessage(formatError(data, "Registration failed."), true);
+        }
+    } catch (err) {
+        console.error("Registration error:", err);
+        setAuthMessage("Couldn't reach the server. Is the backend running?", true);
     }
 }
 
@@ -117,9 +172,11 @@ function renderMedications(meds, listId) {
 function showDashboard() {
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('logout-btn').hidden = false;
     document.getElementById('app-subtitle').textContent = 'medication list';
     fetchMedications();
     fetchArchivedMedications();
+    fetchMotivation();
 }
 
 function handleLogout() {
@@ -236,7 +293,7 @@ async function handleUnarchiveMedication(medId) {
 async function fetchReminders() {
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`${API_URL}/reminders/0`, { // '0' is a placeholder as backend uses current_user
+        const response = await fetch(`${API_URL}/reminders/`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -255,11 +312,20 @@ async function fetchReminders() {
     }
     
 }
-async function fetchMotivation(params) {
-    const response = await fetch(`${API_URL}/motivation/random`);
-    if(response.ok){
-        const text = await response.json();
-        document.getElementById('motivation-display').innerText = text
+async function fetchMotivation() {
+    const display = document.getElementById('motivation-display');
+    try {
+        const response = await fetch(`${API_URL}/motivation/random`);
+        if (response.ok) {
+            display.innerText = await response.json();
+        } else if (response.status === 404) {
+            display.innerText = "No motivation quotes yet — add some via POST /motivation/.";
+        } else {
+            display.innerText = "Couldn't load a quote right now.";
+        }
+    } catch (err) {
+        console.error("Motivation fetch error:", err);
+        display.innerText = "Couldn't reach the server.";
     }
 }
 

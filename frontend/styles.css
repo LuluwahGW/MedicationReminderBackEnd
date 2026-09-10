@@ -60,6 +60,22 @@ body {
   background: var(--hero-bg);
   text-align: center;
   padding: 56px 24px 72px;
+  position: relative;
+}
+
+#logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+
+@media (max-width: 560px) {
+  #logout-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
 }
 
 .hero h1 {
@@ -111,6 +127,50 @@ body {
 .login-card h2 {
   margin-top: 0;
   font-weight: 600;
+}
+
+/* ---------- Auth tabs (Sign In / Sign Up) ---------- */
+
+.auth-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--page-bg);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  margin-bottom: 22px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.auth-tab.is-active {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.auth-message {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  color: var(--success);
+  white-space: pre-line;
+  min-height: 1.2em;
+}
+
+.auth-message.is-error {
+  color: var(--danger);
 }
 
 /* ---------- Form elements ---------- */

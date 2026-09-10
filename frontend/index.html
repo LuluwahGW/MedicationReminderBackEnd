@@ -8,28 +8,53 @@
 </head>
 <body>
     <header class="hero">
+        <button onclick="handleLogout()" id="logout-btn" class="btn-danger" hidden>Logout</button>
         <h1>Medication Reminder</h1>
-        <p class="subtitle" id="app-subtitle">Developed by me</p>
+        <p class="subtitle" id="app-subtitle">Developed by lulu</p>
     </header>
 
     <div class="container">
         <div id="login-section" class="card login-card">
-            <h2>Sign In</h2>
-            <div class="form-group">
-                <label for="login-email">Email</label>
-                <input type="email" id="login-email" placeholder="Value" required>
+            <div class="auth-toggle">
+                <button type="button" id="tab-signin" class="auth-tab is-active" onclick="showAuthTab('signin')">Sign In</button>
+                <button type="button" id="tab-signup" class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
             </div>
-            <div class="form-group">
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" placeholder="Value" required>
-            </div>
-            <button onclick="handleLogin()" class="btn-primary btn-block">Sign In</button>
+
+            <form id="signin-form" onsubmit="event.preventDefault(); handleLogin();">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Sign In</button>
+            </form>
+
+            <form id="signup-form" onsubmit="event.preventDefault(); handleRegister();" hidden>
+                <div class="form-group">
+                    <label for="signup-name">Name</label>
+                    <input type="text" id="signup-name" placeholder="Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="you@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a password" required>
+                    <small class="field-hint">At least 8 characters, with an uppercase letter, a lowercase letter, and a number.</small>
+                </div>
+                <button type="submit" class="btn-success btn-block">Create Account</button>
+            </form>
+
+            <p id="auth-message" class="auth-message" role="status"></p>
         </div>
 
         <div id="dashboard" style="display:none;">
             <div class="header-actions">
-                <h2 id="welcome-msg">Dashboard</h2>
-                <button onclick="handleLogout()" class="btn-danger">Logout</button>
+                <h2 id="welcome-msg">Welcome!</h2>
             </div>
 
             <div class="section card">
