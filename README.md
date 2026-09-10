@@ -4,6 +4,8 @@ A full-stack medication management app: a **FastAPI + SQLAlchemy** REST API with
 authentication for users, medications, reminders, and caregiver–patient links, plus a
 lightweight vanilla HTML/JS frontend that consumes the API.
 
+![status](https://github.com/LuluwahGW/MedicationReminderBackEnd/actions/workflows/ci.yml/badge.svg)
+
 ## Features
 
 - **Authentication** — registration with password-strength rules, JWT bearer tokens
@@ -16,7 +18,8 @@ lightweight vanilla HTML/JS frontend that consumes the API.
   read-only view of their patients' active medications.
 - **Motivational messages** — random message endpoint, seeded from a committed JSON file
   that is synced into the database on startup (no manual seeding step).
-- **Tested** — pytest suite covering auth, ownership isolation, and the main flows.
+- **Tested** — pytest suite covering auth, ownership isolation, and the main flows; run
+  automatically in CI on every push.
 
 ## Tech stack
 
@@ -27,6 +30,7 @@ lightweight vanilla HTML/JS frontend that consumes the API.
 | Auth     | JWT (`python-jose`), bcrypt (`passlib`) |
 | Config   | `python-dotenv` |
 | Tests    | pytest, Starlette `TestClient` |
+| CI       | GitHub Actions |
 | Frontend | HTML + vanilla JS (`fetch`) + CSS |
 
 ## Project structure
@@ -46,7 +50,8 @@ MedicationReminderBackEnd/
 │   ├── caregiver_related/          # caregiver assignment + patient views
 │   ├── motivationtext_related/     # random messages + motivation_quotes.json
 │   └── tests/
-└── frontend/                       # index.html, script.js, styles.css
+├── frontend/                       # index.html, script.js, styles.css
+└── .github/workflows/ci.yml
 ```
 
 ## Getting started
