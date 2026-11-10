@@ -66,3 +66,8 @@ def test_motivation_random_returns_a_quote(client):
     assert resp.status_code == 200
     assert isinstance(resp.json(), str)
     assert len(resp.json()) > 0
+
+
+def test_motivation_post_endpoint_is_gone(client, auth_headers):
+    resp = client.post("/motivation/", json={"message_text": "hi"}, headers=auth_headers)
+    assert resp.status_code == 404

@@ -6,7 +6,7 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 import database_utilis_related.models as models
-from database_utilis_related.database import engine, Base, SessionLocal
+from database_utilis_related.database import engine, Base, SessionLocal, upgrade_legacy_sqlite
 from database_utilis_related.utils import (
     verify_password,
     create_access_token,
@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
     # Create tables and load the canonical motivation quotes from JSON so a
     # fresh clone is ready to run with no manual seeding step.
     Base.metadata.create_all(bind=engine)
+    upgrade_legacy_sqlite(engine)
     db = SessionLocal()
     try:
         added = motiveRoute.load_quotes_into_db(db)

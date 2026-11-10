@@ -451,3 +451,37 @@ textarea:focus-visible {
     transition: none !important;
   }
 }
+
+/* ---------- Caregivers ---------- */
+
+.link-row {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.link-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.invite-banner {
+  border: 2px solid var(--accent-purple);
+}
+
+.empty-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 10px 0;
+}
+
+.status-tag {
+  color: var(--success);
+  margin-left: 6px;
+  font-size: 0.8rem;
+}
+
+/* Make the [hidden] attribute win over display rules such as .actions { display: flex } */
+[hidden] {
+  display: none !important;
+}

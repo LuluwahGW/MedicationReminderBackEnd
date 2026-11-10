@@ -177,6 +177,9 @@ function showDashboard() {
     fetchMedications();
     fetchArchivedMedications();
     fetchMotivation();
+    fetchMyCaregivers();
+    fetchMyPatients();
+    loadPendingInvite();
 }
 
 function handleLogout() {
@@ -188,8 +191,11 @@ function handleLogout() {
 // --- 4. INITIALIZATION ---
 // Check if user is already logged in on page load
 window.onload = () => {
+    captureInviteFromUrl();
     if (localStorage.getItem('token')) {
         showDashboard();
+    } else if (sessionStorage.getItem('pendingInvite')) {
+        setAuthMessage("You've been invited to be someone's caregiver. Sign in or create an account to review the invitation.");
     }
 };
 
@@ -319,7 +325,7 @@ async function fetchMotivation() {
         if (response.ok) {
             display.innerText = await response.json();
         } else if (response.status === 404) {
-            display.innerText = "No motivation quotes yet — add some via POST /motivation/.";
+            display.innerText = "No motivation quotes available right now.";
         } else {
             display.innerText = "Couldn't load a quote right now.";
         }
@@ -423,4 +429,210 @@ async function handleUpdateReminder(reminderId) {
     } catch (err) {
         console.error("Update Reminder Error:", err);
     }
+}
+
+
+// =========================================================
+// CAREGIVERS: invite links
+// =========================================================
+
+function authHeaders(json = false) {
+    const h = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+}
+
+// Build list rows with textContent (never innerHTML) because names/emails are user-supplied.
+function addRow(list, mainText, extraText, buttons = []) {
+    const li = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'med-item';
+    const info = document.createElement('span');
+    info.className = 'med-info';
+    const strong = document.createElement('strong');
+    strong.textContent = mainText;
+    info.appendChild(strong);
+    if (extraText) info.appendChild(document.createTextNode(' ' + extraText));
+    row.appendChild(info);
+    if (buttons.length) {
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        buttons.forEach(b => actions.appendChild(b));
+        row.appendChild(actions);
+    }
+    li.appendChild(row);
+    list.appendChild(li);
+}
+
+function makeButton(label, cls, onClick) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.className = cls;
+    b.onclick = onClick;
+    return b;
+}
+
+function showEmpty(list, text) {
+    const li = document.createElement('li');
+    li.className = 'empty-note';
+    li.textContent = text;
+    list.appendChild(li);
+}
+
+// --- Patient: create the link ---
+async function handleCreateInviteLink() {
+    try {
+        const response = await fetch(`${API_URL}/caregivers/invite-links`, {
+            method: 'POST',
+            headers: authHeaders()
+        });
+        if (response.status === 401) return handleLogout();
+        if (!response.ok) {
+            alert("Couldn't create the link. Please try again.");
+            return;
+        }
+        const data = await response.json();
+        // Token goes in the query string of THIS page, so it works wherever the frontend is hosted.
+        const url = `${location.origin}${location.pathname}?invite=${encodeURIComponent(data.token)}`;
+        const input = document.getElementById('invite-link-url');
+        input.value = url;
+        document.getElementById('invite-link-box').hidden = false;
+        input.focus();
+        input.select();
+    } catch (err) {
+        console.error("Create invite link error:", err);
+        alert("Couldn't reach the server.");
+    }
+}
+
+async function copyInviteLink() {
+    const input = document.getElementById('invite-link-url');
+    const btn = document.getElementById('copy-link-btn');
+    try {
+        await navigator.clipboard.writeText(input.value);
+    } catch {
+        input.select();           // fallback for non-secure contexts
+        document.execCommand('copy');
+    }
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+}
+
+// --- Patient: who are my caregivers ---
+async function fetchMyCaregivers() {
+    const list = document.getElementById('my-caregivers');
+    try {
+        const response = await fetch(`${API_URL}/caregivers/me`, { headers: authHeaders() });
+        if (!response.ok) return;
+        const caregivers = await response.json();
+        list.innerHTML = '';
+        if (!caregivers.length) return showEmpty(list, 'No caregivers yet.');
+        caregivers.forEach(c => {
+            const label = c.caregiver_name ? `${c.caregiver_name} (${c.caregiver_email})` : c.caregiver_email;
+            const status = c.status === 'ACCEPTED' ? 'accepted' : 'waiting for response';
+            addRow(list, label, `- ${status}`, [
+                makeButton('Remove', 'btn-danger', () => removeCaregiver(c.cg_id))
+            ]);
+        });
+    } catch (err) {
+        console.error("Fetch caregivers error:", err);
+    }
+}
+
+async function removeCaregiver(cgId) {
+    if (!confirm("Remove this caregiver? They will no longer see your medications.")) return;
+    const response = await fetch(`${API_URL}/caregivers/${cgId}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+    });
+    if (response.ok) fetchMyCaregivers();
+}
+
+// --- Caregiver: people I look after (read-only) ---
+async function fetchMyPatients() {
+    const list = document.getElementById('my-patients');
+    try {
+        const response = await fetch(`${API_URL}/caregivers/me/patients`, { headers: authHeaders() });
+        if (!response.ok) return;
+        const patients = await response.json();
+        list.innerHTML = '';
+        if (!patients.length) return showEmpty(list, "You aren't a caregiver for anyone yet.");
+        patients.forEach(p => {
+            const meds = p.medications.map(m => `${m.name} (${m.dosage})`).join(', ');
+            addRow(list, p.patient_email, meds ? `- ${meds}` : '- no active medications');
+        });
+    } catch (err) {
+        console.error("Fetch patients error:", err);
+    }
+}
+
+// --- Caregiver: open the link, sign in, accept ---
+// The link looks like  <frontend>/?invite=TOKEN . Keep the token in sessionStorage so it
+// survives sign-in / sign-up, and strip it from the address bar so it isn't left in history.
+function captureInviteFromUrl() {
+    const token = new URLSearchParams(location.search).get('invite');
+    if (token) {
+        sessionStorage.setItem('pendingInvite', token);
+        history.replaceState(null, '', location.pathname);
+    }
+}
+
+function setInviteBanner(text, showActions) {
+    document.getElementById('invite-text').textContent = text;
+    document.getElementById('invite-actions').hidden = !showActions;
+    document.getElementById('invite-banner').hidden = false;
+}
+
+function clearInviteBanner() {
+    sessionStorage.removeItem('pendingInvite');
+    document.getElementById('invite-banner').hidden = true;
+}
+
+async function loadPendingInvite() {
+    const token = sessionStorage.getItem('pendingInvite');
+    if (!token) return;
+    try {
+        const response = await fetch(`${API_URL}/caregivers/invite-links/${encodeURIComponent(token)}`, {
+            headers: authHeaders()
+        });
+        if (response.status === 401) return handleLogout();   // session expired; invite is kept for next sign-in
+        const data = await response.json();
+        if (response.ok) {
+            const who = data.patient_name ? `${data.patient_name} (${data.patient_email})` : data.patient_email;
+            setInviteBanner(`${who} would like you to be their caregiver. If you accept, you will be able to see their active medications (read-only).`, true);
+        } else {
+            sessionStorage.removeItem('pendingInvite');
+            setInviteBanner(formatError(data, "This invite link isn't valid."), false);
+            setTimeout(clearInviteBanner, 8000);
+        }
+    } catch (err) {
+        console.error("Invite preview error:", err);
+    }
+}
+
+async function acceptInvite() {
+    const token = sessionStorage.getItem('pendingInvite');
+    if (!token) return;
+    try {
+        const response = await fetch(`${API_URL}/caregivers/invite-links/${encodeURIComponent(token)}/accept`, {
+            method: 'POST',
+            headers: authHeaders()
+        });
+        if (response.status === 401) return handleLogout();
+        if (response.ok) {
+            clearInviteBanner();
+            fetchMyPatients();
+            alert("You're now a caregiver. Their medications appear under 'People I care for'.");
+        } else {
+            const data = await response.json();
+            sessionStorage.removeItem('pendingInvite');
+            setInviteBanner(formatError(data, "Couldn't accept the invitation."), false);
+        }
+    } catch (err) {
+        console.error("Accept invite error:", err);
+    }
+}
+
+function declineInvite() {
+    clearInviteBanner();   // nothing was granted, so declining just discards the link
 }

@@ -16,6 +16,11 @@ class FrequencyEnum(enum.Enum):
 
 
 
+class CaregiverStatus(enum.Enum):
+    PENDING = "PENDING"    # patient sent an invitation, caregiver has not answered
+    ACCEPTED = "ACCEPTED"  # caregiver agreed; they can now view the patient's medications
+
+
 class User(Base):
     __tablename__ = 'users'
     id= Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -34,9 +39,29 @@ class CareGiver(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer,ForeignKey('users.id'),nullable=False)
     cg_id = Column(Integer,ForeignKey('users.id'),nullable=False)
+    status = Column(SqlEnum(CaregiverStatus), nullable=False,
+                    default=CaregiverStatus.PENDING, server_default=CaregiverStatus.PENDING.name)
 
     user = relationship("User",foreign_keys=[user_id],backref="assigned_caregiver")
     caregiver = relationship("User",foreign_keys=[cg_id],backref="assigned_users")
+
+
+class CaregiverInvite(Base):
+    """A shareable, single-use link a patient hands to someone they want as caregiver.
+
+    Only a SHA-256 hash of the token is stored, so a copy of the database can't
+    be used to accept invitations. The caregiver gets access only after they
+    sign in and explicitly accept.
+    """
+    __tablename__ = 'caregiver_invites'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    token_hash = Column(String(64), unique=True, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used_at = Column(DateTime(timezone=True))
+
+    patient = relationship("User", foreign_keys=[patient_id])
 
 
 class Medication(Base):

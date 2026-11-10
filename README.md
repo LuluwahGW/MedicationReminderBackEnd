@@ -14,8 +14,8 @@ lightweight vanilla HTML/JS frontend that consumes the API.
   to the authenticated owner.
 - **Reminders** — CRUD linked to a medication, with `ONCE` / `DAILY` / `WEEKLY` /
   `MONTHLY` frequency; a reminder can only be created against a medication you own.
-- **Caregivers** — a patient can assign another user as a caregiver; caregivers get a
-  read-only view of their patients' active medications.
+- **Caregivers** — a patient creates a single-use invite link; the caregiver must sign in
+  and accept before getting a read-only view of the patient's active medications.
 - **Motivational messages** — random message endpoint, seeded from a committed JSON file
   that is synced into the database on startup (no manual seeding step).
 - **Tested** — pytest suite covering auth, ownership isolation, and the main flows; run
@@ -47,7 +47,7 @@ MedicationReminderBackEnd/
 │   ├── user_related/               # register, update, delete account
 │   ├── medications_related/        # medication CRUD + archive
 │   ├── reminders_related/          # reminder CRUD
-│   ├── caregiver_related/          # caregiver assignment + patient views
+│   ├── caregiver_related/          # invite links + caregiver/patient views
 │   ├── motivationtext_related/     # random messages + motivation_quotes.json
 │   └── tests/
 ├── frontend/                       # index.html, script.js, styles.css
@@ -114,14 +114,15 @@ Protected routes require an `Authorization: Bearer <token>` header.
 | `PUT /medications/archive/{id}` | Archive |
 | `POST /reminders/` · `GET /reminders/` | Create / list own reminders |
 | `PATCH /reminders/{id}` · `DELETE /reminders/{id}` | Update / delete |
-| `POST /caregivers/assign` · `DELETE /caregivers/{cg_id}` | Manage own caregivers |
-| `GET /caregivers/me/patients` · `GET /caregivers/patients/{id}/medications` | Caregiver views |
-| `GET /motivation/random` · `POST /motivation/` | Random message / add one |
+| `POST /caregivers/invite-links` | Create a single-use, 7-day invite link to give to a caregiver |
+| `GET /caregivers/invite-links/{token}` · `POST /caregivers/invite-links/{token}/accept` | Caregiver previews who invited them / accepts (grants access) |
+| `GET /caregivers/me` · `DELETE /caregivers/{cg_id}` | List my caregivers + status / remove a caregiver |
+| `GET /caregivers/me/patients` · `GET /caregivers/patients/{id}/medications` | Caregiver views (accepted links only) |
+| `GET /motivation/random` | Random motivational message |
 
 ## Roadmap
 
 - Actually *deliver* reminders (background scheduler + email/push) — currently reminders
   are only stored and queried.
 - Alembic migrations instead of `create_all`.
-- Caregiver invitations require the caregiver's acceptance.
 - Move `/login` and auth helpers into a dedicated `auth` module.

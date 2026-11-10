@@ -4,8 +4,7 @@ from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import func  # random function
 import database_utilis_related.models as models
-from database_utilis_related.utils import get_current_user, get_db
-from . import motivationtext_schema
+from database_utilis_related.utils import get_db
 
 router = APIRouter(prefix="/motivation", tags=["Motivation"])
 
@@ -45,18 +44,3 @@ def get_random_motivetext(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="MotivationText not found")
 
     return random_text.message_text
-
-
-@router.post("/", response_model=motivationtext_schema.MotivationTextOut)
-def create_motive_text(
-    text: motivationtext_schema.MotivationTextCreate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    new_text = models.MotivationText(message_text=text.message_text)
-
-    db.add(new_text)
-    db.commit()
-    db.refresh(new_text)
-
-    return new_text
