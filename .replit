@@ -1,13 +1,38 @@
 modules = ["python-3.12", "nodejs-20", "web"]
-run = "pip install -r backend/requirements.txt && cd backend && uvicorn main:app --host 0.0.0.0 --port 8000"
+run = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 5000"
 
 [deployment]
 build = ["sh", "-c", "pip install -r backend/requirements.txt"]
-run = ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port 8000"]
+run = ["sh", "-c", "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 5000"]
 
 [[ports]]
-localPort = 8000
+localPort = 5000
 externalPort = 80
 
 [nix]
 channel = "stable-25_05"
+packages = ["cargo", "libiconv", "libxcrypt", "rustc"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 5000"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"

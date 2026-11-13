@@ -36,10 +36,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY") or os.getenv("SESSION_SECRET")
 if not SECRET_KEY:
     raise RuntimeError(
-        "SECRET_KEY is not set. Copy .env.example to .env and set a value "
+        "SECRET_KEY (or Replit SESSION_SECRET) is not set. Copy .env.example to .env and set a value "
         "(generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\")."
     )
 
