@@ -1,4 +1,6 @@
-const API_URL = "http://127.0.0.1:8000";
+// Served by the backend itself -> same-origin (empty prefix). Opened via Live Server
+// (port 5500) -> talk to the local backend explicitly.
+const API_URL = location.port === "5500" ? "http://127.0.0.1:8000" : "";
 
 // --- 0. AUTH TAB + MESSAGES ---
 function showAuthTab(tab) {

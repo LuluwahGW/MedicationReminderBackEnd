@@ -1,7 +1,13 @@
 def test_health(client):
-    resp = client.get("/")
+    resp = client.get("/health")
     assert resp.status_code == 200
     assert resp.json()["status"] == "ok"
+
+
+def test_frontend_is_served_at_root(client):
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert "<title>" in resp.text
 
 
 def test_register_and_login(client):

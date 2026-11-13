@@ -70,20 +70,20 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 uvicorn main:app --reload
 ```
 
-API: <http://127.0.0.1:8000> · interactive docs: <http://127.0.0.1:8000/docs>
+App (frontend + API): <http://127.0.0.1:8000> · interactive docs: <http://127.0.0.1:8000/docs>
 
+The backend serves the `frontend/` folder itself, so there is nothing else to start.
 The database (SQLite file) and tables are created automatically on first run.
 
-### Frontend
+### Frontend only (optional)
 
-Serve `frontend/` with any static server on port 5500 so it matches the CORS allow-list
-(VS Code Live Server, or):
+If you prefer a separate static server (e.g. VS Code Live Server), serve `frontend/` on
+port 5500 — the page then calls the API at `http://127.0.0.1:8000`, which is on the CORS
+allow-list:
 
 ```bash
 cd frontend && python -m http.server 5500 --bind 127.0.0.1
 ```
-
-Then open <http://127.0.0.1:5500>.
 
 ### Docker
 
@@ -92,6 +92,16 @@ cd backend
 docker build -t medication-reminder .
 docker run -p 8000:8000 -e SECRET_KEY=$(python -c "import secrets;print(secrets.token_urlsafe(32))") medication-reminder
 ```
+
+### Deploy on Replit
+
+1. Create a Repl with **Import from GitHub** (Python 3.11). The included `.replit` file
+   installs dependencies and starts the app on port 8000.
+2. In **Secrets**, add `SECRET_KEY` (generate one with the command above).
+3. For data that survives restarts and redeploys, add Replit's **PostgreSQL** database and
+   make sure `DATABASE_URL` is set (Replit normally adds it). Without it the app falls back
+   to a local SQLite file, which may be wiped on redeploy.
+4. Run, then Deploy. Make sure the deployment also has `SECRET_KEY` and `DATABASE_URL`.
 
 ## Tests
 

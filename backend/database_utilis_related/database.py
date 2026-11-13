@@ -10,6 +10,10 @@ load_dotenv()
 # Postgres/MySQL URL in .env for a real deployment.
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./medications_db.db")
 
+# Some hosts (e.g. Heroku-style URLs) hand out "postgres://", which SQLAlchemy 2 rejects.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql://" + DATABASE_URL[len("postgres://"):]
+
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
 engine = create_engine(DATABASE_URL, connect_args=connect_args)

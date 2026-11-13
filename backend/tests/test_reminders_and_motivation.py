@@ -70,4 +70,5 @@ def test_motivation_random_returns_a_quote(client):
 
 def test_motivation_post_endpoint_is_gone(client, auth_headers):
     resp = client.post("/motivation/", json={"message_text": "hi"}, headers=auth_headers)
-    assert resp.status_code == 404
+    # Not an API route any more; the static frontend mount answers non-GET with 405.
+    assert resp.status_code in (404, 405)

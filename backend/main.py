@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 import database_utilis_related.models as models
@@ -59,7 +61,7 @@ app.include_router(caregiverRoute.router)
 app.include_router(motiveRoute.router)
 
 
-@app.get("/", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def read_root():
     return {"status": "ok", "service": "Medication Reminder API"}
 
@@ -90,3 +92,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @app.get("/me", tags=["Auth"])
 def read_current_user(current_user: models.User = Depends(get_current_user)):
     return {"id": current_user.id, "email": current_user.email, "name": current_user.name}
+
+
+# Serve the frontend from the same app so it works on one URL (e.g. on Replit).
+# Mounted last so every API route above takes precedence over static files.
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
