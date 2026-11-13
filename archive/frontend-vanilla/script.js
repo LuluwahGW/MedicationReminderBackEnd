@@ -231,10 +231,16 @@ async function handleAddMedication() {
 // --- CREATE REMINDER ---
 async function handleCreateReminder() {
     const token = localStorage.getItem('token');
+    const reminderTime = new Date(document.getElementById('rem-time').value);
+    if (Number.isNaN(reminderTime.getTime())) {
+        alert("Please choose a valid reminder date and time.");
+        return;
+    }
+
     const reminderData = {
         medication_id: parseInt(document.getElementById('rem-med-id').value),
         name: document.getElementById('rem-name').value,
-        reminder_time: new Date(document.getElementById('rem-time').value).toISOString(),
+        reminder_time: reminderTime.toISOString(),
         frequency: document.getElementById('rem-freq').value, // e.g., "DAILY"
         message: document.getElementById('rem-msg').value
     };
