@@ -4,10 +4,24 @@ def test_health(client):
     assert resp.json()["status"] == "ok"
 
 
-def test_frontend_is_served_at_root(client):
+def test_root_responds(client):
+    # Either the optional bundled frontend (HTML) or the API info JSON.
     resp = client.get("/")
     assert resp.status_code == 200
-    assert "<title>" in resp.text
+
+
+def test_cors_allows_local_origin_and_rejects_unknown(client):
+    ok = client.options(
+        "/login",
+        headers={"Origin": "http://127.0.0.1:5500", "Access-Control-Request-Method": "POST"},
+    )
+    assert ok.headers.get("access-control-allow-origin") == "http://127.0.0.1:5500"
+
+    bad = client.options(
+        "/login",
+        headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"},
+    )
+    assert "access-control-allow-origin" not in bad.headers
 
 
 def test_register_and_login(client):

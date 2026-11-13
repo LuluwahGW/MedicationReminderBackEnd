@@ -2,7 +2,8 @@
 
 A full-stack medication management app: a **FastAPI + SQLAlchemy** REST API with JWT
 authentication for users, medications, reminders, and caregiver–patient links, plus a
-lightweight vanilla HTML/JS frontend that consumes the API.
+separate frontend that consumes the API. The current frontend is built with Lovable; the
+original vanilla HTML/JS frontend is kept in `archive/frontend-vanilla/`.
 
 ![status](https://github.com/LuluwahGW/MedicationReminderBackEnd/actions/workflows/ci.yml/badge.svg)
 
@@ -31,7 +32,7 @@ lightweight vanilla HTML/JS frontend that consumes the API.
 | Config   | `python-dotenv` |
 | Tests    | pytest, Starlette `TestClient` |
 | CI       | GitHub Actions |
-| Frontend | HTML + vanilla JS (`fetch`) + CSS |
+| Frontend | Lovable-built web app (current) · vanilla HTML/JS in `archive/frontend-vanilla/` |
 
 ## Project structure
 
@@ -50,7 +51,7 @@ MedicationReminderBackEnd/
 │   ├── caregiver_related/          # invite links + caregiver/patient views
 │   ├── motivationtext_related/     # random messages + motivation_quotes.json
 │   └── tests/
-├── frontend/                       # index.html, script.js, styles.css
+└── archive/frontend-vanilla/       # original plain HTML/JS frontend (still works)
 └── .github/workflows/ci.yml
 ```
 
@@ -70,19 +71,25 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 uvicorn main:app --reload
 ```
 
-App (frontend + API): <http://127.0.0.1:8000> · interactive docs: <http://127.0.0.1:8000/docs>
+API: <http://127.0.0.1:8000> · interactive docs: <http://127.0.0.1:8000/docs>
 
-The backend serves the `frontend/` folder itself, so there is nothing else to start.
+The backend is an API only by default. To also serve the archived vanilla frontend from it,
+set `FRONTEND_DIR=../archive/frontend-vanilla` in `.env` and open the backend URL.
 The database (SQLite file) and tables are created automatically on first run.
 
-### Frontend only (optional)
+### Frontend
 
-If you prefer a separate static server (e.g. VS Code Live Server), serve `frontend/` on
+A deployed frontend (Lovable) must be allowed by CORS: set `CORS_ORIGINS` (comma-separated
+origins) and/or `CORS_ORIGIN_REGEX` on the host. Login is form-encoded (`username`,
+`password`); other requests use `Authorization: Bearer <token>`.
+
+To run the archived vanilla frontend with a separate static server (e.g. VS Code Live
+Server), serve `archive/frontend-vanilla/` on
 port 5500 — the page then calls the API at `http://127.0.0.1:8000`, which is on the CORS
 allow-list:
 
 ```bash
-cd frontend && python -m http.server 5500 --bind 127.0.0.1
+cd archive/frontend-vanilla && python -m http.server 5500 --bind 127.0.0.1
 ```
 
 ### Docker
