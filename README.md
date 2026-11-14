@@ -10,7 +10,7 @@ original vanilla HTML/JS frontend is kept in `archive/frontend-vanilla/`.
 ## Features
 
 - **Authentication** — registration with password-strength rules, JWT bearer tokens
-  (`python-jose`), bcrypt password hashing (`passlib`).
+  (`PyJWT`), bcrypt password hashing (`passlib`).
 - **Medications** — full CRUD per user, plus archive / unarchive; every query is scoped
   to the authenticated owner.
 - **Reminders** — CRUD linked to a medication, with `ONCE` / `DAILY` / `WEEKLY` /
@@ -28,7 +28,7 @@ original vanilla HTML/JS frontend is kept in `archive/frontend-vanilla/`.
 |----------|--------|
 | API      | FastAPI, Pydantic v2 |
 | ORM / DB | SQLAlchemy 2, SQLite by default (`DATABASE_URL` swaps in Postgres/MySQL) |
-| Auth     | JWT (`python-jose`), bcrypt (`passlib`) |
+| Auth     | JWT (`PyJWT`), bcrypt (`passlib`) |
 | Config   | `python-dotenv` |
 | Tests    | pytest, Starlette `TestClient` |
 | CI       | GitHub Actions |

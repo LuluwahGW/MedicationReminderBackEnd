@@ -1,0 +1,1 @@
+- [JWT dependency choice](jwt-dependency-choice.md) — keep authentication free of python-ecdsa; its timing vulnerability has no planned upstream fix.

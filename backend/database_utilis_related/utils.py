@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt, ExpiredSignatureError
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from sqlalchemy.orm import Session
 
 import database_utilis_related.models as models
@@ -66,7 +67,7 @@ def verify_token(token: str):
         return user_id
     except ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token Expired")
-    except JWTError:
+    except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
 
